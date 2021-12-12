@@ -26,20 +26,14 @@ for points in lines_coors:
     ps = [[int(p) for p in points[0].split(',')], [int(p) for p in points[1].split(',')]]
     points_map.append(ps)
 
-# pprint(points_map)
 
-# ground starts at 0,0 and ends at 9,9 so size = 10 by 10 | ONLY FOR EXAMPLE
-buffer_size = 1000
-buffer = [[*('.'*buffer_size)] for _ in range(buffer_size)]
-counted_points = []
+buffer = {}
 
 def get_range(val1, val2):
     if val1 < val2:
         return range(val1, val2 + 1)
     else:
         return range(val2, val1 + 1)
-
-danger_count = 0 # the number of points where at least two lines overlap
 
 def is_diag(start_pt, end_pt):
     pts = [start_pt, end_pt]
@@ -60,16 +54,13 @@ def get_diag_range(start_pt, end_pt):
     # these ranges assure the motion (points increment) is from left->right and top->bottom
     y_range = range(start_y, end_y + 1)
     x_range = range(start_x, end_x + 1)
-    
 
     # to invert y-range if required like for [[8,0], [0,8]]
     if ((end_y +1) - start_y < 0):
-        y_adder = -1
         y_range = range(start_y, end_y - 1, -1)
 
     # to invert x-range if required
     if ((end_x +1) - start_x < 0):
-        x_adder = -1
         x_range = range(start_x, end_x - 1, -1)
 
 
@@ -78,46 +69,31 @@ def get_diag_range(start_pt, end_pt):
     return lst
 
 for start_pt, end_pt in points_map:
-    # if not (start_pt[0] == end_pt[0] or start_pt[1] == end_pt[1]):
-    #     continue;
     if start_pt[0] == end_pt[0]:
-        # print((start_pt, end_pt)) # REMOVE ME
         # x is same so vertical line
         x_coor = start_pt[0];
         for y_coor in get_range(start_pt[1], end_pt[1]):
-            # the value at the coor before
-            val = buffer[y_coor][x_coor]
-            # new value for the coor
-            buffer[y_coor][x_coor] = str(int(val) + 1) if val != '.' else "1"
-            if ([y_coor, x_coor] not in counted_points) and int(buffer[y_coor][x_coor]) > 1:
-                counted_points.append([y_coor, x_coor])
-                danger_count += 1
+            pt_repr = f"{y_coor} {x_coor}"
+            val = buffer.get(pt_repr, None)
+            buffer[pt_repr] = buffer[pt_repr] + 1 if (val) else 1
 
     elif start_pt[1] == end_pt[1]:
         # print((start_pt, end_pt)) # REMOVE ME
         # y is same so horizontal line
         y_coor = start_pt[1];
         for x_coor in get_range(start_pt[0], end_pt[0]):
-            # the value at the coor before
-            val = buffer[y_coor][x_coor]
-            # new value for the coor
-            buffer[y_coor][x_coor] = str(int(val) + 1) if val != '.' else "1"
-            if ([y_coor, x_coor] not in counted_points) and int(buffer[y_coor][x_coor]) > 1:
-                counted_points.append([y_coor, x_coor])
-                danger_count += 1
+            pt_repr = f"{y_coor} {x_coor}"
+            val = buffer.get(pt_repr, None)
+            buffer[pt_repr] = buffer[pt_repr] + 1 if (val) else 1
+
     elif is_diag(start_pt, end_pt):
         # print(start_pt, end_pt);
         pts_range = get_diag_range(start_pt, end_pt)
         for pt in pts_range:
-            x, y = pt;
-            val = buffer[y][x]
-            # new value for the coor
-            buffer[y][x] = str(int(val) + 1) if val != '.' else "1"
-            if ([y, x] not in counted_points) and int(buffer[y][x]) > 1:
-                counted_points.append([y, x])
-                danger_count += 1
+            pt_repr = f"{pt[1]} {pt[0]}"
+            val = buffer.get(pt_repr, None)
+            buffer[pt_repr] = buffer[pt_repr] + 1 if (val) else 1
     else:
         pass
 
-# pprint(buffer)
-print(danger_count)
+pprint(len([i for i in buffer.values() if int(i) >= 2]))
