@@ -48,7 +48,6 @@ def getInput(filepath = None):
 _i = getInput().splitlines()
 
 graph = {}
-
 # make the data structure
 
 for line in _i:
@@ -71,24 +70,28 @@ for line in _i:
 
 paths = []
 
-def solve(pos, path = [], visited = set()):
+
+def solve(pos, path = [], visited = set(), power_used = False):
     path.append(pos)
     if pos.islower():
         visited.add(pos)
     for next_pos in graph[pos]:
         if next_pos == "end":
             paths.append(path+["end"])
-            continue
-        if next_pos not in visited and graph.get(next_pos) and next_pos != "start":
-            solve(next_pos, path.copy(), visited.copy())
+            continue        
+        if graph.get(next_pos) and next_pos != "start":
+            if next_pos not in visited:
+                solve(next_pos, path.copy(), visited.copy(), power_used)
+            elif not power_used:
+                solve(next_pos, path.copy(), visited.copy(), True)
 
 res = solve("start")
 
 def print_path(path):
     for p in path[0:-1]:
-        print(p, end=" -> ")
+        print(p, end=",")
     print(path[-1])
 
-# [print_path(p) for p in paths]
+[print_path(p) for p in paths]
 
 print(len(paths))
