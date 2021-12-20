@@ -1,4 +1,5 @@
 import sys
+from pprint import pprint
 
 def getInput(filepath = None):
         # change the extension of the file from .py to .in | split, slice (excluding the last), join + ".in"
@@ -7,4 +8,4 @@ def getInput(filepath = None):
             return inFile.read()
 
 _i = getInput()
-print(_i, end="")
+print(_i)
