@@ -1,6 +1,9 @@
 import sys
 from pprint import pprint
 
+# from collections import Counter
+from string import ascii_uppercase
+
 def getInput(filepath = None):
 #     return """NNCB
 
@@ -47,23 +50,68 @@ def getScore(formula):
             min_s = cnt
     return max_s - min_s
 
-pprint(mappings)
-
 STEPS = 10
 
+# Part 1 solution
 for _ in range(STEPS):
-    buffer = "xx"
+    buffer = "aa"
     new_formula = []
     for i in formula:
-        buffer += i         # add new elm
-        buffer = buffer[1:] # remove last elm
-
+        buffer += i
+        buffer = buffer[1:]
         new_formula.append(i)
         elm = mappings.get(buffer)
         if elm:
             new_formula.insert(-1, elm)
     formula = "".join(new_formula)
     # print(formula)
-    new_formula.clear()
 
 print(getScore(formula))
+
+# PART 2 :
+# to solve this i had to watch a writeup on youtube 
+# the guy suggested frequency analysis and we have already
+# used frequency analysis once this year so i guess i 
+# understand some frequency analysis now ! awesome
+
+STEPS = 40
+pairs = ["".join(i) for i in zip(_i[0], _i[0][1:])]
+
+count_obj = dict.fromkeys(mappings.keys(), 0)
+# setting up the object for use
+for p in pairs:
+    count_obj[p]+=1
+
+# pprint(count_obj)
+
+for _ in range(STEPS):
+    new_count_obj = dict.fromkeys(mappings.keys(), 0)
+    for pair, count in count_obj.items():
+        # pprint((pair, count))
+        if count < 0:
+            continue
+        new_elm = mappings[pair]
+        new_count_obj[pair[0] + new_elm] += count
+        new_count_obj[new_elm + pair[1]] += count
+    count_obj = new_count_obj.copy()
+
+
+def score(obj):
+    elm_freq = dict.fromkeys(ascii_uppercase, 0)
+    for k, v in obj.items():
+        elm1, elm2 = (k[0], k[1])
+        # print(elm1, elm2, v)
+        elm_freq[elm1] += v
+        elm_freq[elm2] += v
+
+    # print(elm_freq)
+
+    elm_freq[_i[0][0]] += 1     # first_elm_from_formula
+    elm_freq[_i[0][-1]] += 1    # last_elm_from_formula
+
+    count_list = [X // 2 for X in elm_freq.values() if X > 0]
+
+    return max(count_list) - min(count_list)
+
+
+print(score(count_obj))
